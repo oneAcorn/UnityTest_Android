@@ -12,5 +12,8 @@
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
+
+        <!--没这行代码不能让unity窗体透明!!!-->
+        <item name="android:windowIsTranslucent">true</item>
     </style>
 </resources>
