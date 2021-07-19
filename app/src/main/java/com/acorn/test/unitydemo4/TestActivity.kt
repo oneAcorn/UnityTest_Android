@@ -46,7 +46,7 @@ class TestActivity : Activity(), IUnityPlayerLifecycleEvents {
         mUnityPlayer = UnityPlayer(this, this)
         rootLayout.addView(
             mUnityPlayer,
-            0,
+            1,
             ConstraintLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT
