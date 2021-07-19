@@ -60,26 +60,26 @@ class TestActivity : Activity(), IUnityPlayerLifecycleEvents {
     private fun initListener() {
         standBtn.setOnClickListener {
             //第一个参数是Unity中一个节点对象的名字，第二个参数是节点对象上挂的脚本中一个函数的名字，第三个参数是函数中的参数值
-            UnityPlayer.UnitySendMessage("Gril_001", "ChangeStand", "")
+            UnityPlayer.UnitySendMessage("model", "ChangeStand", "")
         }
         walkBtn.setOnClickListener {
             //第一个参数是Unity中一个节点对象的名字，第二个参数是节点对象上挂的脚本中一个函数的名字，第三个参数是函数中的参数值
-            UnityPlayer.UnitySendMessage("Gril_001", "ChangeWalk", "")
+            UnityPlayer.UnitySendMessage("model", "ChangeWalk", "")
         }
 
         changeHairBtn.setOnClickListener {
             curHair = if (curHair == 0) 1 else 0
-            UnityPlayer.UnitySendMessage("Gril_001", "ChangeDigitalHumanTexture", "0,$curHair")
+            UnityPlayer.UnitySendMessage("model", "ChangeDigitalHumanTexture", "0,$curHair")
         }
 
         changeJacketBtn.setOnClickListener {
             curJacket = if (curJacket == 0) 1 else 0
-            UnityPlayer.UnitySendMessage("Gril_001", "ChangeDigitalHumanTexture", "1,$curJacket")
+            UnityPlayer.UnitySendMessage("model", "ChangeDigitalHumanTexture", "1,$curJacket")
         }
 
         changeTrousersBtn.setOnClickListener {
             curTrousers = if (curTrousers == 0) 1 else 0
-            UnityPlayer.UnitySendMessage("Gril_001", "ChangeDigitalHumanTexture", "2,$curTrousers")
+            UnityPlayer.UnitySendMessage("model", "ChangeDigitalHumanTexture", "2,$curTrousers")
         }
 
         addModelBtn.setOnClickListener {

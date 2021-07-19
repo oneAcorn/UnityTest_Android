@@ -3,13 +3,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/rootLayout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@drawable/app_banner">
+    android:layout_height="match_parent">
 
-<!--    <com.acorn.test.unitydemo4.MySurfaceView-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="match_parent"-->
-<!--        />-->
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@mipmap/test_bg"
+        android:scaleType="centerCrop"
+        />
 
     <Button
         android:id="@+id/standBtn"
