@@ -34,6 +34,18 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+        }
+    }
+}
+
+repositories {
+    flatDir {
+        dirs 'libs'
+    }
 }
 
 dependencies {
@@ -48,4 +60,7 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 
     implementation project(':unityLibrary')
+    //阿里云智能语音交互20210708版本
+    implementation(name: 'nuisdk-release', ext: 'aar')
+    implementation 'com.alibaba:fastjson:1.1.46.android'
 }

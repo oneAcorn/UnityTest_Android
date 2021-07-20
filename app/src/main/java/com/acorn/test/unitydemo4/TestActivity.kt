@@ -5,7 +5,9 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
 import android.view.*
+import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
+import com.acorn.test.unitydemo4.tts.TtsHelper
 import com.unity3d.player.IUnityPlayerLifecycleEvents
 import com.unity3d.player.UnityPlayer
 import kotlinx.android.synthetic.main.activity_unity_player.*
@@ -13,7 +15,7 @@ import kotlinx.android.synthetic.main.activity_unity_player.*
 /**
  * Created by acorn on 2021/7/16.
  */
-class TestActivity : Activity(), IUnityPlayerLifecycleEvents {
+class TestActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents {
     protected lateinit var mUnityPlayer: UnityPlayer // don't change the name of this variable; referenced from native code
 
     private var curHair = 0
@@ -21,6 +23,7 @@ class TestActivity : Activity(), IUnityPlayerLifecycleEvents {
     private var curTrousers = 0
     private val newModelName = "model2"
     private var isNewModelWalking = false
+    private val ttsHelper = TtsHelper(this, lifecycle)
 
     // Override this in your custom UnityPlayerActivity to tweak the command line arguments passed to the Unity Android Player
     // The command line arguments are passed as a string, separated by spaces
@@ -106,6 +109,10 @@ class TestActivity : Activity(), IUnityPlayerLifecycleEvents {
             }
             isNewModelWalking = !isNewModelWalking
         }
+
+        ttsBtn.setOnClickListener {
+            ttsHelper.startTts("语音合成服务，通过先进的深度学习技术，将文本转换成自然流畅的语音。目前有多种音色可供选择，并提供调节语速、语调、音量等功能。适用于智能客服、语音交互、文学有声阅读和无障碍播报等场景。")
+        }
     }
 
     // When Unity player unloaded move task to background
@@ -116,6 +123,7 @@ class TestActivity : Activity(), IUnityPlayerLifecycleEvents {
     // Callback before Unity player process is killed
     override fun onUnityPlayerQuitted() {}
     override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
         // To support deep linking, we need to make sure that the client can get access to
         // the last sent intent. The clients access this through a JNI api that allows them
         // to get the intent set on launch. To update that after launch we have to manually
