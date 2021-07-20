@@ -22,6 +22,10 @@ android {
     }
 
     buildTypes {
+        debug {
+            debuggable true
+            minifyEnabled false
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
@@ -63,4 +67,5 @@ dependencies {
     //阿里云智能语音交互20210708版本
     implementation(name: 'nuisdk-release', ext: 'aar')
     implementation 'com.alibaba:fastjson:1.1.46.android'
+    implementation 'com.google.code.gson:gson:2.8.7'
 }

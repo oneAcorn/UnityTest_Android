@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.acorn.test.unitydemo4.extends.md5
+import com.acorn.test.unitydemo4.unity.MouthControl
 import com.acorn.test.unitydemo4.utils.MyConstants
 import com.alibaba.fastjson.JSONException
 import com.alibaba.fastjson.JSONObject
@@ -23,6 +24,7 @@ class TtsHelper(private val context: Context, lifecycle: Lifecycle) {
     private val TAG = "TtsHelper"
     private val nui_tts_instance = NativeNui(Constants.ModeType.MODE_TTS)
     private var initialized = false
+    private val mouthController = MouthControl()
 
     //  AudioPlayer默认采样率是16000
     private val mAudioTrack: AudioPlayer = AudioPlayer(object : AudioPlayerCallback {
@@ -38,8 +40,8 @@ class TtsHelper(private val context: Context, lifecycle: Lifecycle) {
     init {
         lifecycle.addObserver(LifecycleEventObserver { _, event ->
             when (event) {
-                Lifecycle.Event.ON_CREATE->{
-                    Log.i(TAG,"onCreate")
+                Lifecycle.Event.ON_CREATE -> {
+                    Log.i(TAG, "onCreate")
                     if (!CommonUtils.copyAssetsData(context)) {
                         throw RuntimeException("copy assets failed")
                     }
@@ -60,29 +62,29 @@ class TtsHelper(private val context: Context, lifecycle: Lifecycle) {
 
     }
 
-    fun startTts(ttsText:String){
-        if(!initialized){
+    fun startTts(ttsText: String) {
+        if (!initialized) {
             initialize()
         }
         nui_tts_instance.startTts("1", "", ttsText)
     }
 
-    fun pauseTts(){
+    fun pauseTts() {
         nui_tts_instance.pauseTts()
         mAudioTrack.pause()
     }
 
-    fun resumeTts(){
+    fun resumeTts() {
         nui_tts_instance.resumeTts()
         mAudioTrack.play()
     }
 
-    fun cancelTts(){
+    fun cancelTts() {
         nui_tts_instance.cancelTts("")
         mAudioTrack.stop()
     }
 
-    fun quitTts(){
+    fun quitTts() {
         mAudioTrack.stop()
         nui_tts_instance.tts_release()
         initialized = false
@@ -100,12 +102,17 @@ class TtsHelper(private val context: Context, lifecycle: Lifecycle) {
                     Log.i(TAG, "start play")
                 } else if (event == TtsEvent.TTS_EVENT_END) {
                     Log.i(TAG, "play end")
+                    mouthController.callbackEnd()
                 } else if (event == TtsEvent.TTS_EVENT_PAUSE) {
                     mAudioTrack.pause()
+                    mouthController.reset()
                     Log.i(TAG, "play pause")
                 } else if (event == TtsEvent.TTS_EVENT_RESUME) {
                     mAudioTrack.play()
                 } else if (event == TtsEvent.TTS_EVENT_ERROR) {
+                    mouthController.reset()
+                } else if (event == TtsEvent.TTS_EVENT_CANCEL) {
+                    mouthController.reset()
                 }
             }
 
@@ -118,6 +125,7 @@ class TtsHelper(private val context: Context, lifecycle: Lifecycle) {
             override fun onTtsDataCallback(info: String, info_len: Int, data: ByteArray) {
                 if (info.length > 0) {
                     Log.i(TAG, "info: $info")
+                    mouthController.onTtsCallback(info)
                 }
                 if (data.size > 0) {
                     mAudioTrack.setAudioData(data)
