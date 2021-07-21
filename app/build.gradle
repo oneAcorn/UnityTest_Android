@@ -68,4 +68,8 @@ dependencies {
     implementation(name: 'nuisdk-release', ext: 'aar')
     implementation 'com.alibaba:fastjson:1.1.46.android'
     implementation 'com.google.code.gson:gson:2.8.7'
+
+    implementation 'io.reactivex.rxjava3:rxjava:3.0.4'
+    implementation 'io.reactivex.rxjava3:rxkotlin:3.0.1'
+    implementation('com.github.tbruyelle:rxpermissions:0.12')
 }

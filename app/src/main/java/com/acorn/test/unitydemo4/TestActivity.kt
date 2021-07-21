@@ -1,5 +1,6 @@
 package com.acorn.test.unitydemo4
 
+import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.content.res.Configuration
@@ -7,6 +8,9 @@ import android.os.Bundle
 import android.view.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
+import com.acorn.test.unitydemo4.asr.AsrHelper
+import com.acorn.test.unitydemo4.asr.AsrListener
+import com.acorn.test.unitydemo4.extends.requestPermission
 import com.acorn.test.unitydemo4.tts.TtsHelper
 import com.unity3d.player.IUnityPlayerLifecycleEvents
 import com.unity3d.player.UnityPlayer
@@ -15,7 +19,7 @@ import kotlinx.android.synthetic.main.activity_unity_player.*
 /**
  * Created by acorn on 2021/7/16.
  */
-class TestActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents {
+class TestActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents, AsrListener {
     protected lateinit var mUnityPlayer: UnityPlayer // don't change the name of this variable; referenced from native code
 
     private var curHair = 0
@@ -24,6 +28,9 @@ class TestActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents {
     private val newModelName = "model2"
     private var isNewModelWalking = false
     private val ttsHelper = TtsHelper(this, lifecycle)
+    private val asrHelper = AsrHelper(this, lifecycle).apply {
+        listener = this@TestActivity
+    }
 
     // Override this in your custom UnityPlayerActivity to tweak the command line arguments passed to the Unity Android Player
     // The command line arguments are passed as a string, separated by spaces
@@ -58,6 +65,15 @@ class TestActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents {
         setContentView(rootLayout)
         mUnityPlayer!!.requestFocus()
         initListener()
+        requestPermission(Manifest.permission.RECORD_AUDIO,
+            allPermGrantedCallback = {
+                if (!asrHelper.mInit)
+                    asrHelper.initialize()
+                startListenBtn.isEnabled = true
+            },
+            anyPermDeniedCallback = {
+                startListenBtn.isEnabled = false
+            })
     }
 
     private fun initListener() {
@@ -112,6 +128,14 @@ class TestActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents {
 
         ttsBtn.setOnClickListener {
             ttsHelper.startTts("语音合成服务，通过先进的深度学习技术，将文本转换成自然流畅的语音。目前有多种音色可供选择，并提供调节语速、语调、音量等功能。适用于智能客服、语音交互、文学有声阅读和无障碍播报等场景。")
+        }
+
+        startListenBtn.setOnClickListener {
+            asrHelper.startDialog()
+        }
+
+        stopListenBtn.setOnClickListener {
+            asrHelper.stopDialog()
         }
     }
 
@@ -200,5 +224,15 @@ class TestActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents {
     /*API12*/
     override fun onGenericMotionEvent(event: MotionEvent): Boolean {
         return mUnityPlayer!!.injectEvent(event)
+    }
+
+    override fun onListenStateChanged(isListening: Boolean) {
+        startListenBtn.isEnabled = !isListening
+        stopListenBtn.isEnabled = isListening
+    }
+
+    override fun onListenResult(str: String?) {
+        str ?: return
+        ttsHelper.startTts(str)
     }
 }

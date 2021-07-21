@@ -8,6 +8,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import com.acorn.test.unitydemo4.extends.md5
 import com.acorn.test.unitydemo4.unity.MouthControl
 import com.acorn.test.unitydemo4.utils.MyConstants
+import com.acorn.test.unitydemo4.utils.Utils
 import com.alibaba.fastjson.JSONException
 import com.alibaba.fastjson.JSONObject
 import com.alibaba.idst.nui.CommonUtils
@@ -172,7 +173,7 @@ class TtsHelper(private val context: Context, lifecycle: Lifecycle) {
             val jsonObject = JSONObject()
             jsonObject["app_key"] = MyConstants.NUI_APP_KEY
             jsonObject["token"] = MyConstants.NUI_TOKEN
-            jsonObject["device_id"] = getDeviceId()
+            jsonObject["device_id"] = Utils.getDeviceId()
             jsonObject["url"] = "wss://nls-gateway.cn-shanghai.aliyuncs.com:443/ws/v1"
             jsonObject["workspace"] = CommonUtils.getModelPath(context)
             // 设置为在线合成
@@ -183,19 +184,5 @@ class TtsHelper(private val context: Context, lifecycle: Lifecycle) {
         }
 //        Log.i(TAG, "UserContext:$str")
         return str
-    }
-
-    private fun getDeviceId(): String {
-        return Build.SERIAL ?: getRandomUniqueIdentification()
-    }
-
-    /**
-     * 唯一标识（目前只是呼叫用）
-     */
-    private fun getRandomUniqueIdentification(): String {
-        val random1 = UUID.randomUUID().toString()
-        val random2 = UUID.randomUUID().toString()
-        val random3 = UUID.randomUUID().toString()
-        return (random1 + random2 + random3).md5()
     }
 }
