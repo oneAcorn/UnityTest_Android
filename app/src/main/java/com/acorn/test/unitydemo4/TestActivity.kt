@@ -4,8 +4,12 @@ import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.content.res.Configuration
+import android.graphics.Color
+import android.graphics.PixelFormat
 import android.os.Bundle
+import android.provider.Settings
 import android.view.*
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.acorn.test.unitydemo4.asr.AsrHelper
@@ -64,6 +68,31 @@ class TestActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents, AsrListen
         )
         setContentView(rootLayout)
         mUnityPlayer!!.requestFocus()
+
+//        val surfaceView = findViewById("unitySurfaceView") as SurfaceView
+//        surfaceView.setBackgroundColor(Color.argb(0x00, 0, 0, 0))
+//        surfaceView.holder.setFormat(PixelFormat.TRANSPARENT)
+//        surfaceView.holder.addCallback(object : SurfaceHolder.Callback{
+//            override fun surfaceCreated(holder: SurfaceHolder) {
+////                Toast.makeText(this@TestActivity, "surfaceCreated", Toast.LENGTH_SHORT).show()
+////                UnityPlayer.UnitySendMessage("Main Camera", "GlClear", "")
+//            }
+//
+//            override fun surfaceChanged(
+//                holder: SurfaceHolder,
+//                format: Int,
+//                width: Int,
+//                height: Int
+//            ) {
+//                Toast.makeText(this@TestActivity, "surfaceChanged", Toast.LENGTH_SHORT).show()
+//                UnityPlayer.UnitySendMessage("Main Camera", "GlClear", "")
+//            }
+//
+//            override fun surfaceDestroyed(holder: SurfaceHolder) {
+//            }
+//
+//        })
+
         initListener()
         requestPermission(Manifest.permission.RECORD_AUDIO,
             allPermGrantedCallback = {
@@ -74,6 +103,11 @@ class TestActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents, AsrListen
             anyPermDeniedCallback = {
                 startListenBtn.isEnabled = false
             })
+    }
+
+    private fun findViewById(id: String): View {
+        val resId = resources.getIdentifier(id, "id", packageName);
+        return findViewById(resId)
     }
 
     private fun initListener() {

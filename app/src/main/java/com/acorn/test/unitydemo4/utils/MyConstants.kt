@@ -6,5 +6,5 @@ package com.acorn.test.unitydemo4.utils
 object MyConstants {
     const val NUI_APP_KEY = "Nwxv4Jkzbku4wlti"
     //测试用token,有效期24小时,自己手动替换.
-    const val NUI_TOKEN = "add87e218093410fbfbd672b223fe4b5"
+    const val NUI_TOKEN = "a51fa227814749148e7b76d353974659"
 }
