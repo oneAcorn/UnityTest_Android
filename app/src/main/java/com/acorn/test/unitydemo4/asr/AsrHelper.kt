@@ -1,6 +1,6 @@
 package com.acorn.test.unitydemo4.asr
 
-import android.content.Context
+import android.Manifest
 import android.media.AudioFormat
 import android.media.AudioRecord
 import android.media.MediaRecorder
@@ -9,9 +9,11 @@ import android.os.HandlerThread
 import android.os.Looper
 import android.util.Log
 import android.widget.Toast
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.acorn.test.unitydemo4.bean.ASRBean
+import com.acorn.test.unitydemo4.extends.requestPermission
 import com.acorn.test.unitydemo4.utils.GsonUtils
 import com.acorn.test.unitydemo4.utils.MyConstants
 import com.acorn.test.unitydemo4.utils.Utils
@@ -24,7 +26,8 @@ import java.util.concurrent.atomic.AtomicBoolean
 /**
  * Created by acorn on 2021/7/20.
  */
-class AsrHelper(private val context: Context, lifecycle: Lifecycle) : INativeNuiCallback {
+class AsrHelper(private val context: FragmentActivity, private val listener: IAsrListener? = null) :
+    INativeNuiCallback {
     private var nuiInstance = NativeNui()
     private val WAVE_FRAM_SIZE = 20 * 2 * 1 * 16000 / 1000 //20ms audio for 16k/16bit/mono
 
@@ -39,22 +42,26 @@ class AsrHelper(private val context: Context, lifecycle: Lifecycle) : INativeNui
 
     //是否正在听
     private var isListening = AtomicBoolean(false)
-    var listener: AsrListener? = null
 
     companion object {
         const val TAG = "AsrHelper"
     }
 
     init {
-        lifecycle.addObserver(LifecycleEventObserver { _, event ->
+        context.lifecycle.addObserver(LifecycleEventObserver { _, event ->
             when (event) {
                 Lifecycle.Event.ON_CREATE -> {
-                    mHanderThread = HandlerThread("process_thread")
-                    mHanderThread.start()
-                    mHandler = Handler(mHanderThread.looper)
-                }
-                Lifecycle.Event.ON_START -> {
-                    initialize()
+                    context.requestPermission(Manifest.permission.RECORD_AUDIO,
+                        allPermGrantedCallback = {
+                            mHanderThread = HandlerThread("process_thread")
+                            mHanderThread.start()
+                            mHandler = Handler(mHanderThread.looper)
+                            initialize()
+                        },
+                        anyPermDeniedCallback = {
+                            mInit = false
+                            listener?.onAsrError("permission denied")
+                        })
                 }
                 Lifecycle.Event.ON_STOP -> {
                     nuiInstance.release()
@@ -69,6 +76,8 @@ class AsrHelper(private val context: Context, lifecycle: Lifecycle) : INativeNui
      * 开始监听对话,不是打开弹框!
      */
     fun startDialog() {
+        if (!mInit)
+            return
         if (isListening.get()) //已经开始监听了
             return
         updateListeningState(true)
@@ -82,6 +91,8 @@ class AsrHelper(private val context: Context, lifecycle: Lifecycle) : INativeNui
      * 关闭对话监听,不是关闭弹框!
      */
     fun stopDialog() {
+        if (!mInit)
+            return
         if (!isListening.get())
             return
         updateListeningState(false)
@@ -98,7 +109,9 @@ class AsrHelper(private val context: Context, lifecycle: Lifecycle) : INativeNui
         }
     }
 
-    fun initialize() {
+    private fun initialize() {
+        if (mInit)
+            return
         Log.i(TAG, "initialize")
         //获取工作路径
         val assetPath = CommonUtils.getModelPath(context)

@@ -1,21 +1,20 @@
 package com.acorn.test.unitydemo4
 
-import android.Manifest
-import android.app.Activity
 import android.content.Intent
 import android.content.res.Configuration
-import android.graphics.Color
-import android.graphics.PixelFormat
 import android.os.Bundle
-import android.provider.Settings
+import android.util.Log
 import android.view.*
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.acorn.test.unitydemo4.asr.AsrHelper
-import com.acorn.test.unitydemo4.asr.AsrListener
-import com.acorn.test.unitydemo4.extends.requestPermission
+import com.acorn.test.unitydemo4.asr.IAsrListener
+import com.acorn.test.unitydemo4.kws.BaiduKwsHelper
+import com.acorn.test.unitydemo4.kws.IBaiduKwsListener
+import com.acorn.test.unitydemo4.tts.ITtsListener
 import com.acorn.test.unitydemo4.tts.TtsHelper
+import com.alibaba.idst.nui.INativeTtsCallback
 import com.unity3d.player.IUnityPlayerLifecycleEvents
 import com.unity3d.player.UnityPlayer
 import kotlinx.android.synthetic.main.activity_unity_player.*
@@ -23,7 +22,8 @@ import kotlinx.android.synthetic.main.activity_unity_player.*
 /**
  * Created by acorn on 2021/7/16.
  */
-class TestActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents, AsrListener {
+class TestActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents, IAsrListener,
+    IBaiduKwsListener, ITtsListener {
     protected lateinit var mUnityPlayer: UnityPlayer // don't change the name of this variable; referenced from native code
 
     private var curHair = 0
@@ -31,10 +31,12 @@ class TestActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents, AsrListen
     private var curTrousers = 0
     private val newModelName = "model2"
     private var isNewModelWalking = false
-    private val ttsHelper = TtsHelper(this, lifecycle)
-    private val asrHelper = AsrHelper(this, lifecycle).apply {
-        listener = this@TestActivity
-    }
+    private val ttsHelper = TtsHelper(this, lifecycle, this)
+    private val asrHelper = AsrHelper(this, this)
+    private val kwsHelper = BaiduKwsHelper(this, this)
+
+    //小蜂回应呼叫的tts taskId
+    private val respondTaskId = "xfRespond"
 
     // Override this in your custom UnityPlayerActivity to tweak the command line arguments passed to the Unity Android Player
     // The command line arguments are passed as a string, separated by spaces
@@ -94,15 +96,6 @@ class TestActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents, AsrListen
 //        })
 
         initListener()
-        requestPermission(Manifest.permission.RECORD_AUDIO,
-            allPermGrantedCallback = {
-                if (!asrHelper.mInit)
-                    asrHelper.initialize()
-                startListenBtn.isEnabled = true
-            },
-            anyPermDeniedCallback = {
-                startListenBtn.isEnabled = false
-            })
     }
 
     private fun findViewById(id: String): View {
@@ -268,5 +261,30 @@ class TestActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents, AsrListen
     override fun onListenResult(str: String?) {
         str ?: return
         ttsHelper.startTts(str)
+    }
+
+    override fun onAsrError(err: String?, code: Int?) {
+        startListenBtn.isEnabled = false
+    }
+
+    override fun onKwsResult(word: String) {
+        ttsHelper.startTts("哎,你说", respondTaskId)
+    }
+
+    override fun onKwsError(err: String?, code: Int?) {
+        Toast.makeText(this, err, Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onTtsEvent(event: INativeTtsCallback.TtsEvent, taskId: String) {
+        Log.i("TtsHelper", "tts event code:${event.code}")
+        when (event) {
+            INativeTtsCallback.TtsEvent.TTS_EVENT_END -> {
+                if (taskId == respondTaskId) { //小蜂回应用户,等待用户命令
+                    asrHelper.startDialog()
+                }
+            }
+            else -> {
+            }
+        }
     }
 }

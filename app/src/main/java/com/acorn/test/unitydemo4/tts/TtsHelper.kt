@@ -21,7 +21,11 @@ import java.util.*
 /**
  * Created by acorn on 2021/7/20.
  */
-class TtsHelper(private val context: Context, lifecycle: Lifecycle) {
+class TtsHelper(
+    private val context: Context,
+    lifecycle: Lifecycle,
+    private val listener: ITtsListener? = null
+) {
     private val TAG = "TtsHelper"
     private val nui_tts_instance = NativeNui(Constants.ModeType.MODE_TTS)
     private var initialized = false
@@ -63,11 +67,12 @@ class TtsHelper(private val context: Context, lifecycle: Lifecycle) {
 
     }
 
-    fun startTts(ttsText: String) {
+    fun startTts(ttsText: String, taskId: String = "") {
         if (!initialized) {
             initialize()
         }
-        nui_tts_instance.startTts("1", "", ttsText)
+        val code = nui_tts_instance.startTts("1", taskId, ttsText)
+        Log.i(TAG, "startTts:$code")
     }
 
     fun pauseTts() {
@@ -98,6 +103,7 @@ class TtsHelper(private val context: Context, lifecycle: Lifecycle) {
                     TAG,
                     "tts event:$event task id $task_id ret $ret_code"
                 )
+                listener?.onTtsEvent(event,task_id)
                 if (event == TtsEvent.TTS_EVENT_START) {
                     mAudioTrack.play()
                     Log.i(TAG, "start play")

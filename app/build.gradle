@@ -13,6 +13,7 @@ android {
         targetSdkVersion 30
         versionCode 1
         versionName "1.0"
+        multiDexEnabled true
 
         ndk {
             abiFilters 'armeabi-v7a'
@@ -44,6 +45,10 @@ android {
             jniLibs.srcDirs = ['libs']
         }
     }
+    packagingOptions{
+        doNotStrip "*/*/libvad.dnn.so"
+        doNotStrip "*/*/libbd_easr_s1_merge_normal_20151216.dat.so"
+    }
 }
 
 repositories {
@@ -64,6 +69,7 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 
     implementation project(':unityLibrary')
+    implementation 'androidx.multidex:multidex:2.0.1'
     //阿里云智能语音交互20210708版本
     implementation(name: 'nuisdk-release', ext: 'aar')
     implementation 'com.alibaba:fastjson:1.1.46.android'
@@ -72,4 +78,6 @@ dependencies {
     implementation 'io.reactivex.rxjava3:rxjava:3.0.4'
     implementation 'io.reactivex.rxjava3:rxkotlin:3.0.1'
     implementation('com.github.tbruyelle:rxpermissions:0.12')
+
+    implementation(name: 'bdasr_V3_20201116_93b546d', ext: 'jar')
 }
