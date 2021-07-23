@@ -3,20 +3,29 @@ package com.acorn.test.unitydemo4
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
-import android.util.Log
+import android.os.Handler
+import android.os.Looper
 import android.view.*
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.acorn.test.unitydemo4.asr.AsrHelper
 import com.acorn.test.unitydemo4.asr.IAsrListener
+import com.acorn.test.unitydemo4.bean.AliyunTokenBean
+import com.acorn.test.unitydemo4.extends.commonRequest
 import com.acorn.test.unitydemo4.kws.BaiduKwsHelper
 import com.acorn.test.unitydemo4.kws.IBaiduKwsListener
 import com.acorn.test.unitydemo4.tts.ITtsListener
 import com.acorn.test.unitydemo4.tts.TtsHelper
-import com.alibaba.idst.nui.INativeTtsCallback
+import com.acorn.test.unitydemo4.unity.network.HttpService
+import com.acorn.test.unitydemo4.unity.network.RetrofitUtil
+import com.acorn.test.unitydemo4.utils.MyConstants
+import com.acorn.test.unitydemo4.utils.Utils
+import com.acorn.test.unitydemo4.utils.logI
 import com.unity3d.player.IUnityPlayerLifecycleEvents
 import com.unity3d.player.UnityPlayer
+import io.reactivex.rxjava3.core.Observer
+import io.reactivex.rxjava3.disposables.Disposable
 import kotlinx.android.synthetic.main.activity_unity_player.*
 
 /**
@@ -36,7 +45,9 @@ class TestActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents, IAsrListe
     private val kwsHelper = BaiduKwsHelper(this, this)
 
     //小蜂回应呼叫的tts taskId
-    private val respondTaskId = "xfRespond"
+    private var respondTaskId: String = ""
+
+    private val delayHandler = Handler(Looper.getMainLooper())
 
     // Override this in your custom UnityPlayerActivity to tweak the command line arguments passed to the Unity Android Player
     // The command line arguments are passed as a string, separated by spaces
@@ -95,6 +106,7 @@ class TestActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents, IAsrListe
 //
 //        })
 
+        requestToken()
         initListener()
     }
 
@@ -154,7 +166,7 @@ class TestActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents, IAsrListe
         }
 
         ttsBtn.setOnClickListener {
-            ttsHelper.startTts("语音合成服务，通过先进的深度学习技术，将文本转换成自然流畅的语音。目前有多种音色可供选择，并提供调节语速、语调、音量等功能。适用于智能客服、语音交互、文学有声阅读和无障碍播报等场景。")
+            ttsHelper.startTts("语音合成服务")
         }
 
         startListenBtn.setOnClickListener {
@@ -164,6 +176,46 @@ class TestActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents, IAsrListe
         stopListenBtn.setOnClickListener {
             asrHelper.stopDialog()
         }
+    }
+
+    private fun requestToken() {
+        RetrofitUtil.instance.create(HttpService::class.java)
+            .getAliyunToken()
+            .commonRequest()
+            .subscribe(object : Observer<AliyunTokenBean> {
+                override fun onSubscribe(d: Disposable?) {
+
+                }
+
+                override fun onNext(t: AliyunTokenBean?) {
+                    if (t?.code == "200" && t.data?.isNotEmpty() == true) {//success
+                        logI("获取token成功,初始化")
+                        MyConstants.NUI_TOKEN = t.data
+                        ttsHelper.init()
+                        asrHelper.init()
+                        kwsHelper.init()
+                        kwsHelper.start()
+                    } else {
+                        Toast.makeText(
+                            this@TestActivity,
+                            "获取token失败:${t?.code},${t?.msg}",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+
+                override fun onError(e: Throwable?) {
+                    Toast.makeText(
+                        this@TestActivity,
+                        "获取token失败:${e?.message}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+
+                override fun onComplete() {
+                }
+
+            })
     }
 
     // When Unity player unloaded move task to background
@@ -268,6 +320,7 @@ class TestActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents, IAsrListe
     }
 
     override fun onKwsResult(word: String) {
+        respondTaskId = Utils.getRandomUUID32()
         ttsHelper.startTts("哎,你说", respondTaskId)
     }
 
@@ -275,16 +328,12 @@ class TestActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents, IAsrListe
         Toast.makeText(this, err, Toast.LENGTH_SHORT).show()
     }
 
-    override fun onTtsEvent(event: INativeTtsCallback.TtsEvent, taskId: String) {
-        Log.i("TtsHelper", "tts event code:${event.code}")
-        when (event) {
-            INativeTtsCallback.TtsEvent.TTS_EVENT_END -> {
-                if (taskId == respondTaskId) { //小蜂回应用户,等待用户命令
-                    asrHelper.startDialog()
-                }
-            }
-            else -> {
-            }
+    override fun onTtsVoiceEnd(taskId: String) {
+        logI("onTtsVoiceEnd:$taskId,respondId:$respondTaskId")
+        if (taskId == respondTaskId) { //小蜂回应用户,等待用户命令
+            delayHandler.postDelayed({
+                asrHelper.startDialog()
+            }, 100)
         }
     }
 }

@@ -17,6 +17,7 @@ import com.acorn.test.unitydemo4.extends.requestPermission
 import com.acorn.test.unitydemo4.utils.GsonUtils
 import com.acorn.test.unitydemo4.utils.MyConstants
 import com.acorn.test.unitydemo4.utils.Utils
+import com.acorn.test.unitydemo4.utils.logI
 import com.alibaba.fastjson.JSONException
 import com.alibaba.fastjson.JSONObject
 import com.alibaba.idst.nui.*
@@ -50,19 +51,6 @@ class AsrHelper(private val context: FragmentActivity, private val listener: IAs
     init {
         context.lifecycle.addObserver(LifecycleEventObserver { _, event ->
             when (event) {
-                Lifecycle.Event.ON_CREATE -> {
-                    context.requestPermission(Manifest.permission.RECORD_AUDIO,
-                        allPermGrantedCallback = {
-                            mHanderThread = HandlerThread("process_thread")
-                            mHanderThread.start()
-                            mHandler = Handler(mHanderThread.looper)
-                            initialize()
-                        },
-                        anyPermDeniedCallback = {
-                            mInit = false
-                            listener?.onAsrError("permission denied")
-                        })
-                }
                 Lifecycle.Event.ON_STOP -> {
                     nuiInstance.release()
                 }
@@ -72,10 +60,25 @@ class AsrHelper(private val context: FragmentActivity, private val listener: IAs
         })
     }
 
+    fun init(){
+        context.requestPermission(Manifest.permission.RECORD_AUDIO,
+            allPermGrantedCallback = {
+                mHanderThread = HandlerThread("process_thread")
+                mHanderThread.start()
+                mHandler = Handler(mHanderThread.looper)
+                initialize()
+            },
+            anyPermDeniedCallback = {
+                mInit = false
+                listener?.onAsrError("permission denied")
+            })
+    }
+
     /**
      * 开始监听对话,不是打开弹框!
      */
     fun startDialog() {
+        logI("startDialog init:$mInit,isListening:${isListening.get()}")
         if (!mInit)
             return
         if (isListening.get()) //已经开始监听了

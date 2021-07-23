@@ -24,12 +24,12 @@ import java.util.*
 class TtsHelper(
     private val context: Context,
     lifecycle: Lifecycle,
-    private val listener: ITtsListener? = null
+    listener: ITtsListener? = null
 ) {
     private val TAG = "TtsHelper"
     private val nui_tts_instance = NativeNui(Constants.ModeType.MODE_TTS)
     private var initialized = false
-    private val mouthController = MouthControl()
+    private val mouthController = MouthControl(listener)
 
     //  AudioPlayer默认采样率是16000
     private val mAudioTrack: AudioPlayer = AudioPlayer(object : AudioPlayerCallback {
@@ -50,12 +50,6 @@ class TtsHelper(
                     if (!CommonUtils.copyAssetsData(context)) {
                         throw RuntimeException("copy assets failed")
                     }
-                    if (Constants.NuiResultCode.SUCCESS == initialize()) {
-                        initialized = true
-                    } else {
-                        Log.e(TAG, "init failed")
-                        throw RuntimeException("init failed")
-                    }
                 }
                 Lifecycle.Event.ON_DESTROY -> {
                     quitTts()
@@ -65,6 +59,15 @@ class TtsHelper(
             }
         })
 
+    }
+
+    fun init(){
+        if (Constants.NuiResultCode.SUCCESS == initialize()) {
+            initialized = true
+        } else {
+            Log.e(TAG, "init failed")
+            throw RuntimeException("init failed")
+        }
     }
 
     fun startTts(ttsText: String, taskId: String = "") {
@@ -103,24 +106,20 @@ class TtsHelper(
                     TAG,
                     "tts event:$event task id $task_id ret $ret_code"
                 )
-                listener?.onTtsEvent(event,task_id)
                 if (event == TtsEvent.TTS_EVENT_START) {
                     mAudioTrack.play()
                     Log.i(TAG, "start play")
                 } else if (event == TtsEvent.TTS_EVENT_END) {
                     Log.i(TAG, "play end")
-                    mouthController.callbackEnd()
                 } else if (event == TtsEvent.TTS_EVENT_PAUSE) {
                     mAudioTrack.pause()
-                    mouthController.reset()
                     Log.i(TAG, "play pause")
                 } else if (event == TtsEvent.TTS_EVENT_RESUME) {
                     mAudioTrack.play()
                 } else if (event == TtsEvent.TTS_EVENT_ERROR) {
-                    mouthController.reset()
                 } else if (event == TtsEvent.TTS_EVENT_CANCEL) {
-                    mouthController.reset()
                 }
+                mouthController.onTtsEventCallback(event,task_id)
             }
 
             /**

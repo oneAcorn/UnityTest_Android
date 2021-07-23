@@ -26,6 +26,10 @@ object Utils {
         return (random1 + random2 + random3).md5()
     }
 
+    fun getRandomUUID32():String{
+        return UUID.randomUUID().toString().replace("-","")
+    }
+
     fun createDir(dirPath: String): Int {
         var dirPath = dirPath
         val dir = File(dirPath)
