@@ -193,7 +193,7 @@ class AsrHelper(private val context: FragmentActivity, private val listener: IAs
             当enabble_voice_detection设置为true时，该参数生效。表示允许的最大开始静音时长。
             单位：毫秒。超出后（即开始识别后多长时间没有检测到声音）服务端将会发送TaskFailed事件，结束本次识别。
              */
-//            nlsConfig.put("max_start_silence", 10000);
+            nlsConfig.put("max_start_silence", 5000);
             /**
             当enable_voice_detection设置为true时，该参数生效。表示允许的最大结束静音时长。
             单位：毫秒，取值范围：200ms～2000ms。超出时长服务端会发送RecognitionCompleted事件，结束本次识别

@@ -30,6 +30,7 @@ class MouthControl(private val listener: ITtsListener? = null) {
         const val TAG = "TtsHelperMouthControl"
         const val MSG_SEND_SUBTITLE = 1000
         const val MSG_END_CALLBACK = 1001
+        const val MSG_VOICE_END = 1002
     }
 
     private fun start() {
@@ -114,12 +115,19 @@ class MouthControl(private val listener: ITtsListener? = null) {
                     if (bean.begin_index == lastWordsIndex) { //是最后一个发音
                         lastWordsIndex = -1
                         weakMouthControl.get()?.reset()
-                        weakMouthControl.get()?.listener?.onTtsVoiceEnd(taskId)
+                        //等待音节结束
+                        sendEmptyMessageDelayed(
+                            MSG_VOICE_END,
+                            (bean.end_time - bean.begin_time).toLong()
+                        )
                     }
                 }
                 MSG_END_CALLBACK -> {
                     lastWordsIndex = msg.arg1
                     taskId = msg.obj as String
+                }
+                MSG_VOICE_END -> {
+                    weakMouthControl.get()?.listener?.onTtsVoiceEnd(taskId)
                 }
             }
         }

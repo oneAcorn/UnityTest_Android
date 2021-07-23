@@ -331,9 +331,10 @@ class TestActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents, IAsrListe
     override fun onTtsVoiceEnd(taskId: String) {
         logI("onTtsVoiceEnd:$taskId,respondId:$respondTaskId")
         if (taskId == respondTaskId) { //小蜂回应用户,等待用户命令
-            delayHandler.postDelayed({
-                asrHelper.startDialog()
-            }, 100)
+            asrHelper.startDialog()
+//            delayHandler.postDelayed({
+//                asrHelper.startDialog()
+//            }, 200)
         }
     }
 }
