@@ -6,5 +6,9 @@ import com.alibaba.idst.nui.INativeTtsCallback
  * Created by acorn on 2021/7/23.
  */
 interface ITtsListener {
-    fun onTtsVoiceEnd(taskId:String)
+    fun onTtsStart(ttsString:String)
+
+    fun onTtsVoiceStart()
+
+    fun onTtsVoiceEnd()
 }

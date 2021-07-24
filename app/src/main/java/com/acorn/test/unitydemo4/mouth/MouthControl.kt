@@ -90,6 +90,8 @@ class MouthControl(private val listener: ITtsListener? = null) {
                 msg.what = MSG_SEND_SUBTITLE
                 msg.obj = subtitle
                 if (i == 0) {
+                    //第一个音节
+                    msg.arg1 = 1
                     handler.sendMessage(msg)
                 } else {
                     handler.sendMessageAtTime(msg, startStamp + subtitle.begin_time)
@@ -102,8 +104,8 @@ class MouthControl(private val listener: ITtsListener? = null) {
 
 
     class MouthControlHandler(mouthControl: MouthControl) : Handler(Looper.getMainLooper()) {
-        val weakMouthControl = WeakReference(mouthControl)
-        var lastWordsIndex = -1
+        private val weakMouthControl = WeakReference(mouthControl)
+        private var lastWordsIndex = -1
         private var taskId = ""
 
         override fun handleMessage(msg: Message) {
@@ -112,7 +114,9 @@ class MouthControl(private val listener: ITtsListener? = null) {
                 MSG_SEND_SUBTITLE -> {
                     val bean = msg.obj as Subtitle
                     logI("handleMsg:${bean.text}")
-                    if (bean.begin_index == lastWordsIndex) { //是最后一个发音
+                    if (msg.arg1 == 1) { //是第一个音节
+                        weakMouthControl.get()?.listener?.onTtsVoiceStart()
+                    } else if (bean.begin_index == lastWordsIndex) { //是最后一个发音
                         lastWordsIndex = -1
                         weakMouthControl.get()?.reset()
                         //等待音节结束
@@ -127,7 +131,8 @@ class MouthControl(private val listener: ITtsListener? = null) {
                     taskId = msg.obj as String
                 }
                 MSG_VOICE_END -> {
-                    weakMouthControl.get()?.listener?.onTtsVoiceEnd(taskId)
+//                    taskId暂时没用
+                    weakMouthControl.get()?.listener?.onTtsVoiceEnd()
                 }
             }
         }

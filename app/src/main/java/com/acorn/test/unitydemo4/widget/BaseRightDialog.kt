@@ -1,5 +1,6 @@
 package com.acorn.test.unitydemo4.widget
 
+import android.content.DialogInterface
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
@@ -14,8 +15,13 @@ import com.acorn.test.unitydemo4.extends.dp
  * Created by acorn on 2020/8/7.
  */
 abstract class BaseRightDialog : AppCompatDialogFragment() {
+    var dismissCallback: (() -> Unit)? = null
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         dialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
         val view = inflater.inflate(getLayoutId(), null)
         setStyle(DialogFragment.STYLE_NO_TITLE, R.style.RightDialog)
@@ -30,8 +36,8 @@ abstract class BaseRightDialog : AppCompatDialogFragment() {
 //            decorView.setOnSystemUiVisibilityChangeListener {
 //
 //            }
-            setLayout(360.dp, WindowManager.LayoutParams.MATCH_PARENT);//这2行,和上面的一样,注意顺序就行;
-            setGravity(Gravity.END)
+            setLayout(getLayoutWidth(), getLayoutHeight());//这2行,和上面的一样,注意顺序就行;
+            setGravity(Gravity.CENTER_VERTICAL or Gravity.END)
             setWindowAnimations(R.style.AnimationDialog)
             setBackgroundDrawableResource(R.color.transparent)
         }
@@ -45,9 +51,18 @@ abstract class BaseRightDialog : AppCompatDialogFragment() {
         initAction()
     }
 
+    open fun getLayoutWidth() = 360.dp
+
+    open fun getLayoutHeight() = WindowManager.LayoutParams.MATCH_PARENT
+
     abstract fun getLayoutId(): Int
 
     abstract fun initData()
 
     abstract fun initAction()
+
+    override fun onDismiss(dialog: DialogInterface) {
+        super.onDismiss(dialog)
+        dismissCallback?.invoke()
+    }
 }

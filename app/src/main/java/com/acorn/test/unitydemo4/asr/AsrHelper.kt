@@ -108,7 +108,7 @@ class AsrHelper(private val context: FragmentActivity, private val listener: IAs
     private fun updateListeningState(isListening: Boolean) {
         mainThreadHandler.post {
             this.isListening.set(isListening)
-            listener?.onListenStateChanged(isListening)
+            listener?.onAsrStateChanged(isListening)
         }
     }
 
@@ -260,7 +260,7 @@ class AsrHelper(private val context: FragmentActivity, private val listener: IAs
             //success result:asrResult?.asrResult
             updateListeningState(false)
             val bean = GsonUtils.fromJsontoBean<ASRBean>(asrResult?.asrResult, ASRBean::class.java)
-            listener?.onListenResult(bean?.payload?.result)
+            listener?.onAsrResult(bean?.payload?.result)
         } else if (event == NuiEvent.EVENT_ASR_PARTIAL_RESULT) {
             //识别中...asrResult?.asrResult
         } else if (event == NuiEvent.EVENT_ASR_ERROR) {

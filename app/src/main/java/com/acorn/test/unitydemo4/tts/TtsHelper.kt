@@ -22,7 +22,7 @@ import com.alibaba.idst.nui.NativeNui
 class TtsHelper(
     private val context: Context,
     lifecycle: Lifecycle,
-    listener: ITtsListener? = null
+    private val listener: ITtsListener? = null
 ) {
     private val TAG = "TtsHelper"
     private val nui_tts_instance = NativeNui(Constants.ModeType.MODE_TTS)
@@ -73,6 +73,7 @@ class TtsHelper(
             initialize()
         }
         val code = nui_tts_instance.startTts("1", taskId, ttsText)
+        listener?.onTtsStart(ttsText)
         Log.i(TAG, "startTts:$code")
     }
 

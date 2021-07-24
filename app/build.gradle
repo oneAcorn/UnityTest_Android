@@ -85,4 +85,7 @@ dependencies {
 
     implementation(name: 'bdasr_V3_20201116_93b546d', ext: 'jar')
     implementation(name: 'pinyin4j-2.5.0', ext: 'jar')
+    implementation(name: 'tbs_sdk_x5webview', ext: 'jar')
+
+    implementation('com.tencent:mmkv-static:1.1.1')
 }

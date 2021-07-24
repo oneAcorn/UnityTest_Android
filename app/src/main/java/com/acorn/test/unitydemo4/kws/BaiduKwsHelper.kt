@@ -17,6 +17,7 @@ import org.json.JSONObject
 import java.util.*
 
 /**
+ * 语音唤醒
  * Created by acorn on 2021/7/23.
  */
 class BaiduKwsHelper(
