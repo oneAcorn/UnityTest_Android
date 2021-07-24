@@ -17,6 +17,7 @@ import com.acorn.test.unitydemo4.kws.BaiduKwsHelper
 import com.acorn.test.unitydemo4.kws.IBaiduKwsListener
 import com.acorn.test.unitydemo4.tts.ITtsListener
 import com.acorn.test.unitydemo4.tts.TtsHelper
+import com.acorn.test.unitydemo4.ui.dialog.SceneManageDialog
 import com.acorn.test.unitydemo4.utils.network.HttpService
 import com.acorn.test.unitydemo4.utils.network.RetrofitUtil
 import com.acorn.test.unitydemo4.utils.MyConstants
@@ -116,6 +117,10 @@ class TestActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents, IAsrListe
     }
 
     private fun initListener() {
+        sceneManageBtn.setOnClickListener {
+            SceneManageDialog().show(supportFragmentManager,"SceneManageDialog")
+        }
+
         standBtn.setOnClickListener {
             //第一个参数是Unity中一个节点对象的名字，第二个参数是节点对象上挂的脚本中一个函数的名字，第三个参数是函数中的参数值
             UnityPlayer.UnitySendMessage("model", "ChangeStand", "")
