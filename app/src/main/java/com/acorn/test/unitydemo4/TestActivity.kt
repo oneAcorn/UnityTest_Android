@@ -17,8 +17,8 @@ import com.acorn.test.unitydemo4.kws.BaiduKwsHelper
 import com.acorn.test.unitydemo4.kws.IBaiduKwsListener
 import com.acorn.test.unitydemo4.tts.ITtsListener
 import com.acorn.test.unitydemo4.tts.TtsHelper
-import com.acorn.test.unitydemo4.unity.network.HttpService
-import com.acorn.test.unitydemo4.unity.network.RetrofitUtil
+import com.acorn.test.unitydemo4.utils.network.HttpService
+import com.acorn.test.unitydemo4.utils.network.RetrofitUtil
 import com.acorn.test.unitydemo4.utils.MyConstants
 import com.acorn.test.unitydemo4.utils.Utils
 import com.acorn.test.unitydemo4.utils.logI

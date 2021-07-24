@@ -1,12 +1,10 @@
 package com.acorn.test.unitydemo4.tts
 
 import android.content.Context
-import android.os.Build
 import android.util.Log
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
-import com.acorn.test.unitydemo4.extends.md5
-import com.acorn.test.unitydemo4.unity.MouthControl
+import com.acorn.test.unitydemo4.mouth.MouthControl
 import com.acorn.test.unitydemo4.utils.MyConstants
 import com.acorn.test.unitydemo4.utils.Utils
 import com.acorn.test.unitydemo4.utils.logI
@@ -17,7 +15,6 @@ import com.alibaba.idst.nui.Constants
 import com.alibaba.idst.nui.INativeTtsCallback
 import com.alibaba.idst.nui.INativeTtsCallback.TtsEvent
 import com.alibaba.idst.nui.NativeNui
-import java.util.*
 
 /**
  * Created by acorn on 2021/7/20.

@@ -1,7 +1,6 @@
-package com.acorn.test.unitydemo4.unity.network
+package com.acorn.test.unitydemo4.utils.network
 
 import okhttp3.OkHttpClient
-import okhttp3.internal.platform.Platform
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava3.RxJava3CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
