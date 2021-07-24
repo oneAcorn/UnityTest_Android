@@ -9,6 +9,7 @@ import com.acorn.test.unitydemo4.extends.md5
 import com.acorn.test.unitydemo4.unity.MouthControl
 import com.acorn.test.unitydemo4.utils.MyConstants
 import com.acorn.test.unitydemo4.utils.Utils
+import com.acorn.test.unitydemo4.utils.logI
 import com.alibaba.fastjson.JSONException
 import com.alibaba.fastjson.JSONObject
 import com.alibaba.idst.nui.CommonUtils
@@ -61,7 +62,7 @@ class TtsHelper(
 
     }
 
-    fun init(){
+    fun init() {
         if (Constants.NuiResultCode.SUCCESS == initialize()) {
             initialized = true
         } else {
@@ -102,10 +103,7 @@ class TtsHelper(
     private fun initialize(): Int {
         val ret = nui_tts_instance.tts_initialize(object : INativeTtsCallback {
             override fun onTtsEventCallback(event: TtsEvent, task_id: String, ret_code: Int) {
-                Log.i(
-                    TAG,
-                    "tts event:$event task id $task_id ret $ret_code"
-                )
+                logI("tts event:$event task id $task_id ret $ret_code")
                 if (event == TtsEvent.TTS_EVENT_START) {
                     mAudioTrack.play()
                     Log.i(TAG, "start play")
@@ -119,7 +117,7 @@ class TtsHelper(
                 } else if (event == TtsEvent.TTS_EVENT_ERROR) {
                 } else if (event == TtsEvent.TTS_EVENT_CANCEL) {
                 }
-                mouthController.onTtsEventCallback(event,task_id)
+                mouthController.onTtsEventCallback(event, task_id)
             }
 
             /**
@@ -130,7 +128,7 @@ class TtsHelper(
              */
             override fun onTtsDataCallback(info: String, info_len: Int, data: ByteArray) {
                 if (info.length > 0) {
-                    Log.i(TAG, "info: $info")
+                    logI("info: $info")
                     mouthController.onTtsCallback(info)
                 }
                 if (data.size > 0) {

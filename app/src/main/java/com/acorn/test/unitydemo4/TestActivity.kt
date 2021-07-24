@@ -166,7 +166,7 @@ class TestActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents, IAsrListe
         }
 
         ttsBtn.setOnClickListener {
-            ttsHelper.startTts("语音合成服务")
+            ttsHelper.startTts("""<speak>请闭上眼睛休息两秒<break time="2000ms"/>好了，请睁开眼睛。</speak>""")
         }
 
         startListenBtn.setOnClickListener {
