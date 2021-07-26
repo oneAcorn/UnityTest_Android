@@ -51,7 +51,7 @@ class TestActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents, IAsrListe
     private val asrHelper = AsrHelper(this, this)
     private val kwsHelper = BaiduKwsHelper(this, this)
 
-    private val handler=Handler()
+    private val handler = Handler()
 
     //小蜂回应呼叫的tts taskId
 //    private var respondTaskId: String = ""
@@ -201,17 +201,19 @@ class TestActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents, IAsrListe
 //        }
     }
 
-    private fun updateScene() {
+    private fun updateScene(isTts: Boolean = true) {
         if (Caches.curScene == null)
             Caches.curScene = "3"
         when (Caches.curScene) {
             "3" -> { //管家
                 sceneNameTv.text = "家庭管家"
-                ttsHelper.startTts("欢迎回家")
+                if (isTts)
+                    ttsHelper.startTts("欢迎回家")
             }
             "2" -> { //301医院
                 sceneNameTv.text = "301医院分诊员"
-                ttsHelper.startTts("你好,我是301医院分诊员")
+                if (isTts)
+                    ttsHelper.startTts("你好,我是301医院分诊员")
             }
             else -> {
             }
@@ -233,7 +235,7 @@ class TestActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents, IAsrListe
                         MyConstants.NUI_TOKEN = t.data
                         ttsHelper.init()
                         asrHelper.init()
-                        updateScene()
+                        updateScene(false)
                         //先不用KWS
 //                        kwsHelper.init()
 //                        kwsHelper.start()
@@ -348,6 +350,7 @@ class TestActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents, IAsrListe
     }
 
     override fun onAsrStateChanged(isListening: Boolean) {
+        logI("onAsrStateChanged:$isListening")
         startDialogBtn.isEnabled = !isListening
     }
 
@@ -376,6 +379,7 @@ class TestActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents, IAsrListe
                             ttsHelper.startTts(t.data.value)
                         }
                         "2" -> {
+                            ttsHelper.startTts("好的")
                             WebviewDialog(t.data.value).showDialog(supportFragmentManager)
                         }
                         else -> {
@@ -398,6 +402,7 @@ class TestActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents, IAsrListe
     }
 
     override fun onAsrError(err: String?, code: Int?) {
+        logI("onAsrError")
         startDialogBtn.isEnabled = true
     }
 
@@ -415,6 +420,7 @@ class TestActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents, IAsrListe
     }
 
     override fun onTtsVoiceStart() {
+        logI("onTtsVoiceStart")
         startDialogBtn.isEnabled = false
     }
 
@@ -436,6 +442,6 @@ class TestActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents, IAsrListe
         }
         handler.postDelayed({
             dialogSv.fullScroll(ScrollView.FOCUS_DOWN)
-        },100)
+        }, 100)
     }
 }

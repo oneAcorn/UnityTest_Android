@@ -67,6 +67,7 @@ class MouthControl(private val listener: ITtsListener? = null) {
         startStamp = 0L
         lastSubtitleIndex = -1
         curIndex = 0
+        listener?.onTtsVoiceEnd()
         handler.removeCallbacksAndMessages(null)
     }
 
@@ -105,6 +106,9 @@ class MouthControl(private val listener: ITtsListener? = null) {
 
     class MouthControlHandler(mouthControl: MouthControl) : Handler(Looper.getMainLooper()) {
         private val weakMouthControl = WeakReference(mouthControl)
+
+        //已经说出的字的index
+        private var speakedWordsIndex = -1
         private var lastWordsIndex = -1
         private var taskId = ""
 
@@ -114,11 +118,11 @@ class MouthControl(private val listener: ITtsListener? = null) {
                 MSG_SEND_SUBTITLE -> {
                     val bean = msg.obj as Subtitle
                     logI("handleMsg:${bean.text}")
+                    speakedWordsIndex = bean.begin_index
                     if (msg.arg1 == 1) { //是第一个音节
                         weakMouthControl.get()?.listener?.onTtsVoiceStart()
-                    } else if (bean.begin_index == lastWordsIndex) { //是最后一个发音
+                    } else if (speakedWordsIndex == lastWordsIndex) { //是最后一个发音
                         lastWordsIndex = -1
-                        weakMouthControl.get()?.reset()
                         //等待音节结束
                         sendEmptyMessageDelayed(
                             MSG_VOICE_END,
@@ -129,10 +133,13 @@ class MouthControl(private val listener: ITtsListener? = null) {
                 MSG_END_CALLBACK -> {
                     lastWordsIndex = msg.arg1
                     taskId = msg.obj as String
+                    if (speakedWordsIndex == lastWordsIndex) { //在调用end之前,话已经说完的情况
+                        sendEmptyMessage(MSG_VOICE_END)
+                    }
                 }
                 MSG_VOICE_END -> {
 //                    taskId暂时没用
-                    weakMouthControl.get()?.listener?.onTtsVoiceEnd()
+                    weakMouthControl.get()?.reset()
                 }
             }
         }
