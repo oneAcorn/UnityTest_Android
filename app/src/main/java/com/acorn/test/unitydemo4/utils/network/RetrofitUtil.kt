@@ -48,6 +48,6 @@ class RetrofitUtil private constructor() {
     private fun getBaseUrl(): String {
         //        return Env.UAT ? "http://10.103.11.173:8080/brokerservice-server/" :
         //                "http://mapi.sfbest.com/brokerservice-server/";
-        return "http://172.16.110.170:8888/"
+        return "http://10.0.2.23:8888/robot/"
     }
 }

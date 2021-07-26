@@ -128,6 +128,7 @@ class TestActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents, IAsrListe
     private fun initListener() {
         sceneManageBtn.setOnClickListener {
             SceneManageDialog().showDialog(supportFragmentManager) {
+                ttsHelper.cancelTts()
                 updateScene()
             }
         }
@@ -351,7 +352,10 @@ class TestActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents, IAsrListe
 
     override fun onAsrStateChanged(isListening: Boolean) {
         logI("onAsrStateChanged:$isListening")
-        startDialogBtn.isEnabled = !isListening
+        if (isListening) {
+            //开始听,闭上嘴
+            ttsHelper.cancelTts()
+        }
     }
 
     /**
@@ -374,13 +378,12 @@ class TestActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents, IAsrListe
 
                 override fun onNext(t: ResultObject<NLPBean>) {
                     t.checkIsSuccess()
+                    t.data.answer?.let { ttsHelper.startTts(it) }
                     when (t.data.type) {
-                        "1" -> {
-                            ttsHelper.startTts(t.data.value)
+                        "1" -> { //普通对话
                         }
                         "2" -> {
-                            ttsHelper.startTts("好的")
-                            WebviewDialog(t.data.value).showDialog(supportFragmentManager)
+                            t.data.url?.let { WebviewDialog(it).showDialog(supportFragmentManager) }
                         }
                         else -> {
                         }
@@ -403,7 +406,7 @@ class TestActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents, IAsrListe
 
     override fun onAsrError(err: String?, code: Int?) {
         logI("onAsrError")
-        startDialogBtn.isEnabled = true
+//        startDialogBtn.isEnabled = true
     }
 
     override fun onKwsResult(word: String) {
@@ -421,12 +424,12 @@ class TestActivity : AppCompatActivity(), IUnityPlayerLifecycleEvents, IAsrListe
 
     override fun onTtsVoiceStart() {
         logI("onTtsVoiceStart")
-        startDialogBtn.isEnabled = false
+//        startDialogBtn.isEnabled = false
     }
 
     override fun onTtsVoiceEnd() {
         logI("onTtsVoiceEnd:$taskId")
-        startDialogBtn.isEnabled = true
+//        startDialogBtn.isEnabled = true
 //        if (taskId == respondTaskId) { //小蜂回应用户,等待用户命令
 //            asrHelper.startDialog()
 //        }

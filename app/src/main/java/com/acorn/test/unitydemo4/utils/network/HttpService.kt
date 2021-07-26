@@ -10,9 +10,9 @@ import retrofit2.http.*
  * Created by acorn on 2021/7/23.
  */
 interface HttpService {
-    @GET("shuziren/token")
+    @GET("token")
     fun getAliyunToken(): Observable<AliyunTokenBean>
 
-    @POST("shuziren/nlp")
+    @POST("nlp")
     fun nlp(@Body map: Map<String, String>): Observable<ResultObject<NLPBean>>
 }

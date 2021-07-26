@@ -7,5 +7,6 @@ package com.acorn.test.unitydemo4.bean
 data class NLPBean(
     //1:说话,2:链接
     val type: String,
-    val value: String
+    val answer: String?,
+    val url: String?
 )
